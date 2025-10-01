@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { LogIn, BookOpen, HomeIcon, Menu, X } from "lucide-react";
+import { LogIn, LogOut, BookOpen, HomeIcon, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useAppContext } from "@/context/AppContext";
+import { signOut } from "next-auth/react";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -52,16 +53,30 @@ const Navigation = () => {
                 <span>Login</span>
               </Link>
             )}
-            {
-              isAuthenticated && (
+            {isAuthenticated && (
+              <div className="flex items-center space-x-4">
                 <Link
                   href="/dashboard"
                   className="flex items-center bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-lg tracking-wide"
                 >
                   <span>{user?.firstName}</span>
                 </Link>
-              )
-            }
+                <button
+                  onClick={() =>
+                    signOut({
+                      callbackUrl: "/",
+                      redirect: true,
+                    })
+                  }
+                  className="flex items-center text-gray-700 hover:text-red-600 px-4 py-2 rounded-xl transition-all duration-300 hover:bg-red-50 group"
+                >
+                  <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:scale-110 mr-3" />
+                  <span className="font-semibold text-lg tracking-wide">
+                    Logout
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}

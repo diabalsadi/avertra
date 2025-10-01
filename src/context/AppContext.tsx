@@ -1,11 +1,5 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, ReactNode, useContext, useMemo } from "react";
+import { useSession } from "next-auth/react";
 
 interface User {
   email: string;
@@ -13,9 +7,12 @@ interface User {
   id: string;
   lastName: string;
 }
+
 interface IAppContext {
   user: User | null;
-  isAuthenticated: boolean | null;
+  isAuthenticated: boolean;
+  token: string | null;
+  isLoading: boolean;
 }
 
 interface AppContextProviderProps {
@@ -23,44 +20,38 @@ interface AppContextProviderProps {
 }
 
 const AppContext = createContext<IAppContext>({
-  user: {
-    id: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-  },
+  user: null,
   isAuthenticated: false,
+  token: null,
+  isLoading: true,
 });
 
 export const useAppContext = () => useContext(AppContext);
 
 const AppContextProvider = ({ children }: AppContextProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { data: session, status } = useSession();
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token") || "";
-    console.log(storedToken);
+  const values = useMemo(() => {
+    const isLoading = status === "loading";
+    const isAuthenticated = status === "authenticated" && !!session;
+    const token = session?.accessToken || null;
 
-    fetch("/api/auth/getuser", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${storedToken}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.id) {
-          setUser(data);
-          setIsAuthenticated(true);
+    const user: User | null = session?.user
+      ? {
+          id: session.user.id || "",
+          email: session.user.email || "",
+          firstName: session.user.firstName || "",
+          lastName: session.user.lastName || "",
         }
-      });
-  }, []);
+      : null;
 
-  const values = useMemo(
-    () => ({ user, isAuthenticated }),
-    [user, isAuthenticated]
-  );
+    return {
+      user,
+      isAuthenticated,
+      token,
+      isLoading,
+    };
+  }, [session, status]);
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;
 };

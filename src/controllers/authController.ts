@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prismaClient from "@/services/prismaService";
 import * as argon from "argon2";
-import { User } from "@/generated/prisma";
 import { PrismaClientKnownRequestError } from "@/generated/prisma/runtime/library";
 import {
   generateToken,
@@ -14,34 +13,44 @@ class AuthController {
     const { email, password, firstName, lastName } = req.body;
     const hash = await argon.hash(password);
 
-    prismaClient.user
-      .create({
+    try {
+      const user = await prismaClient.user.create({
         data: {
           email,
           hash,
           firstName,
           lastName,
         },
-      })
-      .then((user: User) => {
-        const token = generateToken(user.id);
-        return res.status(200).json({ id: user.id, token });
-      })
-      .catch((error) => {
-        if (error instanceof PrismaClientKnownRequestError) {
-          if (error.code === "P2002") {
-            return res.status(400).json({
-              message: "User with this email already exists",
-              id: "",
-            });
-          }
-        }
-
-        return res.status(500).json({
-          message: error.message,
-          id: "",
-        });
       });
+
+      const token = generateToken(user.id);
+
+      // Return complete user data for NextAuth compatibility
+      return res.status(200).json({
+        id: user.id,
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          return res.status(400).json({
+            message: "User with this email already exists",
+            id: "",
+          });
+        }
+      }
+
+      return res.status(500).json({
+        message: error instanceof Error ? error.message : "Registration failed",
+        id: "",
+      });
+    }
   }
 
   async login(req: NextApiRequest, res: NextApiResponse) {

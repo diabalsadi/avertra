@@ -13,6 +13,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { signIn } from "next-auth/react";
 
 const formSchema = z
   .object({
@@ -56,28 +57,60 @@ const DynamicForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    const endpoint = isRegistering ? "/api/auth/register" : "/api/auth/login";
-    fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    })
-      .then((res) => res.json())
-      .then((data) => {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isRegistering) {
+      // Handle registration with direct API call
+      const endpoint = "/api/auth/register";
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        });
+
+        const data = await response.json();
+
         if (!data.id) {
-          window.alert(data.message || "An error occurred");
+          window.alert(data.message || "Registration failed");
         } else {
-          localStorage.setItem("token", data.token);
-          router.push("/blogs");
+          // After successful registration, sign them in
+          const result = await signIn("credentials", {
+            email: values.email,
+            password: values.password,
+            redirect: false,
+          });
+
+          if (result?.error) {
+            window.alert("Registration successful but login failed");
+          } else {
+            router.push("/dashboard");
+          }
         }
-      })
-      .catch((err) => {
-        form.setError("root", { message: err.message });
-      });
+      } catch (err) {
+        console.error("Registration error:", err);
+        form.setError("root", { message: "Registration failed" });
+      }
+    } else {
+      // Handle login with NextAuth
+      try {
+        const result = await signIn("credentials", {
+          email: values.email,
+          password: values.password,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          window.alert("Invalid email or password");
+        } else {
+          router.push("/");
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        form.setError("root", { message: "Login failed" });
+      }
+    }
   }
 
   const inputsTypes = [
