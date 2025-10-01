@@ -247,3 +247,225 @@ npx prisma studio
 3. JWT token is generated upon successful login
 4. Token is used to authenticate API requests
 5. Protected routes verify JWT validity
+
+## 🚀 Quick Start Scripts
+
+For testing and development purposes, here are bash scripts using curl commands to interact with the API:
+
+### User Management Scripts
+
+#### Register a New User
+```bash
+#!/bin/bash
+# register_user.sh - Register a new user
+
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john.doe@example.com",
+    "password": "securePassword123",
+    "firstName": "John",
+    "lastName": "Doe"
+  }'
+```
+
+#### Login User
+```bash
+#!/bin/bash
+# login_user.sh - Login a user and get JWT token
+
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john.doe@example.com",
+    "password": "securePassword123"
+  }'
+```
+
+#### Get Current User Info
+```bash
+#!/bin/bash
+# get_user.sh - Get current user information
+# Replace YOUR_JWT_TOKEN with the token from login response
+
+TOKEN="YOUR_JWT_TOKEN"
+
+curl -X GET http://localhost:3000/api/auth/getuser \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+### Blog Management Scripts
+
+#### Create a New Blog Post
+```bash
+#!/bin/bash
+# create_blog.sh - Create a new blog post
+# Replace YOUR_JWT_TOKEN and USER_ID with actual values
+
+TOKEN="YOUR_JWT_TOKEN"
+USER_ID="YOUR_USER_ID"
+
+curl -X POST http://localhost:3000/api/blog/createBlog \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "My First Blog Post",
+    "description": "This is the content of my first blog post. It contains interesting information about web development.",
+    "imgSrc": "https://example.com/image.jpg",
+    "userId": "'$USER_ID'"
+  }'
+```
+
+#### Get All Blog Posts
+```bash
+#!/bin/bash
+# get_all_blogs.sh - Retrieve all blog posts
+
+curl -X GET "http://localhost:3000/api/blog/getAll?offset=0" \
+  -H "Content-Type: application/json"
+```
+
+#### Get Specific Blog Post
+```bash
+#!/bin/bash
+# get_blog.sh - Get a specific blog post by ID
+# Replace BLOG_ID with actual blog ID
+
+BLOG_ID="YOUR_BLOG_ID"
+
+curl -X GET "http://localhost:3000/api/blog/getArticle?id=$BLOG_ID" \
+  -H "Content-Type: application/json"
+```
+
+#### Update Blog Post
+```bash
+#!/bin/bash
+# update_blog.sh - Update an existing blog post
+# Replace YOUR_JWT_TOKEN and BLOG_ID with actual values
+
+TOKEN="YOUR_JWT_TOKEN"
+BLOG_ID="YOUR_BLOG_ID"
+
+curl -X PATCH http://localhost:3000/api/blog/updateBlog \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "'$BLOG_ID'",
+    "title": "Updated Blog Post Title",
+    "description": "This is the updated content of the blog post.",
+    "imgSrc": "https://example.com/updated-image.jpg"
+  }'
+```
+
+#### Delete Blog Post
+```bash
+#!/bin/bash
+# delete_blog.sh - Delete a blog post
+# Replace YOUR_JWT_TOKEN and BLOG_ID with actual values
+
+TOKEN="YOUR_JWT_TOKEN"
+BLOG_ID="YOUR_BLOG_ID"
+
+curl -X DELETE http://localhost:3000/api/blog/deleteBlog \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "'$BLOG_ID'"
+  }'
+```
+
+### Complete Workflow Example
+
+Here's a complete example showing how to register a user, login, and create a blog post:
+
+```bash
+#!/bin/bash
+# complete_workflow.sh - Complete example workflow
+
+echo "1. Registering a new user..."
+REGISTER_RESPONSE=$(curl -s -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "testPassword123",
+    "firstName": "Test",
+    "lastName": "User"
+  }')
+
+echo "Register Response: $REGISTER_RESPONSE"
+
+echo -e "\n2. Logging in..."
+LOGIN_RESPONSE=$(curl -s -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "testPassword123"
+  }')
+
+echo "Login Response: $LOGIN_RESPONSE"
+
+# Extract token and user ID from response (requires jq)
+TOKEN=$(echo $LOGIN_RESPONSE | jq -r '.token')
+USER_ID=$(echo $LOGIN_RESPONSE | jq -r '.id')
+
+echo -e "\n3. Creating a blog post..."
+BLOG_RESPONSE=$(curl -s -X POST http://localhost:3000/api/blog/createBlog \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "My Test Blog Post",
+    "description": "This is a test blog post created via API.",
+    "imgSrc": "https://via.placeholder.com/800x600",
+    "userId": "'$USER_ID'"
+  }')
+
+echo "Blog Creation Response: $BLOG_RESPONSE"
+
+echo -e "\n4. Getting all blogs..."
+curl -s -X GET "http://localhost:3000/api/blog/getAll?offset=0" \
+  -H "Content-Type: application/json" | jq '.'
+```
+
+### Prerequisites for Scripts
+
+To use these scripts effectively:
+
+1. **Make scripts executable**:
+   ```bash
+   chmod +x *.sh
+   ```
+
+2. **Install jq for JSON parsing** (optional but recommended):
+   ```bash
+   # macOS
+   brew install jq
+
+   # Ubuntu/Debian
+   sudo apt-get install jq
+   ```
+
+3. **Ensure your development server is running**:
+   ```bash
+   npm run dev
+   ```
+
+### Usage Tips
+
+- Replace placeholder values (`YOUR_JWT_TOKEN`, `USER_ID`, etc.) with actual values from API responses
+- Store tokens in environment variables for security: `export TOKEN="your_jwt_token"`
+- Use the complete workflow script as a starting point for testing
+- Monitor the development server console for request logs
+- Use tools like [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/) for GUI-based API testing
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## What to improve 🤔
+1. Add a caching system to not hit the db a lot
+2. More dynamic routing for create and update the blogs
