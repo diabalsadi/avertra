@@ -8,9 +8,10 @@ import {
 } from "react";
 
 interface User {
-  firstName: string;
-  lastName: string;
   email: string;
+  firstName: string;
+  id: string;
+  lastName: string;
 }
 interface IAppContext {
   user: User | null;
@@ -23,6 +24,7 @@ interface AppContextProviderProps {
 
 const AppContext = createContext<IAppContext>({
   user: {
+    id: "",
     firstName: "",
     lastName: "",
     email: "",

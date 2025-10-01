@@ -22,21 +22,22 @@ model User {
   hash      String
   firstName String?
   lastName  String?
+  Blog      Blog[]
 
   @@map("users")
-  Blog Blog[]
 }
 
 model Blog {
   id          String   @id @default(cuid())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  title       String   @unique
+  title       String
   description String?
   imgSrc      String?
   userId      String
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId], name: "idx_blog_user_id")
   @@map("blogs")
 }
