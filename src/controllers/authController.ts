@@ -3,11 +3,15 @@ import prismaClient from "@/services/prismaService";
 import * as argon from "argon2";
 import { User } from "@/generated/prisma";
 import { PrismaClientKnownRequestError } from "@/generated/prisma/runtime/library";
-import { generateToken, verifyToken } from "@/services/jwtService";
+import {
+  generateToken,
+  isValidToken,
+  verifyToken,
+} from "@/services/jwtService";
 
 class AuthController {
   async register(req: NextApiRequest, res: NextApiResponse) {
-    const { email, password } = req.body;
+    const { email, password, firstName, lastName } = req.body;
     const hash = await argon.hash(password);
 
     prismaClient.user
@@ -15,6 +19,8 @@ class AuthController {
         data: {
           email,
           hash,
+          firstName,
+          lastName,
         },
       })
       .then((user: User) => {
@@ -63,7 +69,11 @@ class AuthController {
     return res.status(200).json({ id: user.id, token });
   }
 
-  async isAuthenticated(req: NextApiRequest, res: NextApiResponse, next: () => void) {
+  async isAuthenticated(
+    req: NextApiRequest,
+    res: NextApiResponse,
+    next: () => void
+  ) {
     const authToken = req.headers.authorization?.split(" ")[1];
 
     if (!authToken) {
@@ -75,8 +85,42 @@ class AuthController {
       return res.status(401).json({ message: "Not authorized" });
     }
 
-    console.log(verified);
+    const isValid = isValidToken(
+      verified as { exp: number; iat: number; id: string }
+    );
+
+    if (!isValid) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
     next();
+  }
+
+  async getUserFromToken(req: NextApiRequest, res: NextApiResponse) {
+    const authToken = req.headers.authorization?.split(" ")[1];
+
+    if (!authToken) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    const verified = await verifyToken(authToken);
+    if (!verified) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    if (!isValidToken(verified as { exp: number; iat: number; id: string })) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    const user = await prismaClient.user.findUnique({
+      where: { id: (verified as { id: string }).id },
+      select: { id: true, email: true, firstName: true, lastName: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json(user);
   }
 }
 

@@ -1,12 +1,15 @@
 import Navigation from "@/components/Navigation";
+import AppContextProvider from "@/context/AppContext";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <div>
-      <Navigation />
-      <Component {...pageProps} />
+      <AppContextProvider>
+        <Navigation />
+        <Component {...pageProps} />
+      </AppContextProvider>
     </div>
   );
 }

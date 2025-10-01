@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { LogIn, BookOpen, HomeIcon, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useAppContext } from "@/context/AppContext";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated } = useAppContext();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -41,13 +43,15 @@ const Navigation = () => {
               <span className="font-semibold text-lg tracking-wide">Blogs</span>
             </Link>
 
-            <Link
-              href="/login"
-              className="flex items-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-lg tracking-wide"
-            >
-              <LogIn className="w-5 h-5 mr-3" />
-              <span>Login</span>
-            </Link>
+            {isAuthenticated === false && (
+              <Link
+                href="/login"
+                className="flex items-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-lg tracking-wide"
+              >
+                <LogIn className="w-5 h-5 mr-3" />
+                <span>Login</span>
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -74,7 +78,9 @@ const Navigation = () => {
                 className="flex items-center text-gray-700 hover:text-blue-600 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-blue-50 group"
               >
                 <HomeIcon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110 mr-3" />
-                <span className="font-semibold text-lg tracking-wide">Home</span>
+                <span className="font-semibold text-lg tracking-wide">
+                  Home
+                </span>
               </Link>
 
               <Link
@@ -83,17 +89,21 @@ const Navigation = () => {
                 className="flex items-center text-gray-700 hover:text-blue-600 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-blue-50 group"
               >
                 <BookOpen className="w-5 h-5 transition-transform duration-300 group-hover:scale-110 mr-3" />
-                <span className="font-semibold text-lg tracking-wide">Blogs</span>
+                <span className="font-semibold text-lg tracking-wide">
+                  Blogs
+                </span>
               </Link>
 
-              <Link
-                href="/login"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex items-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-lg tracking-wide mx-4"
-              >
-                <LogIn className="w-5 h-5 mr-3" />
-                <span>Login</span>
-              </Link>
+              {isAuthenticated == false && (
+                <Link
+                  href="/login"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-lg tracking-wide mx-4"
+                >
+                  <LogIn className="w-5 h-5 mr-3" />
+                  <span>Login</span>
+                </Link>
+              )}
             </div>
           </div>
         )}
