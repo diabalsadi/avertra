@@ -85,7 +85,7 @@ const DynamicForm = () => {
           if (result?.error) {
             window.alert("Registration successful but login failed");
           } else {
-            router.push("/dashboard");
+            router.push("/");
           }
         }
       } catch (err) {

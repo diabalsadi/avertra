@@ -56,10 +56,10 @@ const Navigation = () => {
             {isAuthenticated && (
               <div className="flex items-center space-x-4">
                 <Link
-                  href="/dashboard"
+                  href="/blogs/create"
                   className="flex items-center bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-lg tracking-wide"
                 >
-                  <span>{user?.firstName}</span>
+                  <span>Create Article</span>
                 </Link>
                 <button
                   onClick={() =>
