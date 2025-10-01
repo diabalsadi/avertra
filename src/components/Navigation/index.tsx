@@ -6,7 +6,7 @@ import { signOut } from "next-auth/react";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, user } = useAppContext();
+  const { isAuthenticated } = useAppContext();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
