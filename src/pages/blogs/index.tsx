@@ -33,7 +33,7 @@ const BlogsPage = ({ initialBlogs }: { initialBlogs: Article[] }) => {
         }));
 
         setArticles((prev) => [...prev, ...blogsWithEditability]);
-        setOffset((prev) => prev + 1);
+        setOffset((prev) => prev + 10);
       }
     } catch (error) {
       console.error("Error loading more blogs:", error);
