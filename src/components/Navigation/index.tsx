@@ -5,7 +5,7 @@ import { useAppContext } from "@/context/AppContext";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated } = useAppContext();
+  const { isAuthenticated, user } = useAppContext();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -52,6 +52,16 @@ const Navigation = () => {
                 <span>Login</span>
               </Link>
             )}
+            {
+              isAuthenticated && (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold text-lg tracking-wide"
+                >
+                  <span>{user?.firstName}</span>
+                </Link>
+              )
+            }
           </div>
 
           {/* Mobile menu button */}

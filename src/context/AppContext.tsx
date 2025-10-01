@@ -7,8 +7,13 @@ import {
   useState,
 } from "react";
 
+interface User {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
 interface IAppContext {
-  user: object | null;
+  user: User | null;
   isAuthenticated: boolean | null;
 }
 
@@ -17,14 +22,18 @@ interface AppContextProviderProps {
 }
 
 const AppContext = createContext<IAppContext>({
-  user: {},
+  user: {
+    firstName: "",
+    lastName: "",
+    email: "",
+  },
   isAuthenticated: false,
 });
 
 export const useAppContext = () => useContext(AppContext);
 
 const AppContextProvider = ({ children }: AppContextProviderProps) => {
-  const [user, setUser] = useState<object | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -46,7 +55,10 @@ const AppContextProvider = ({ children }: AppContextProviderProps) => {
       });
   }, []);
 
-  const values = useMemo(() => ({ user, isAuthenticated }), [user, isAuthenticated]);
+  const values = useMemo(
+    () => ({ user, isAuthenticated }),
+    [user, isAuthenticated]
+  );
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;
 };
