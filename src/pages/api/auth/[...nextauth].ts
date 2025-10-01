@@ -5,8 +5,6 @@ import * as argon from "argon2";
 import { generateToken } from "@/services/jwtService";
 
 export const authOptions: NextAuthOptions = {
-  // Remove adapter for credentials provider - it's not needed and can cause issues
-  // adapter: PrismaAdapter(prismaService),
   providers: [
     CredentialsProvider({
       name: "credentials",
