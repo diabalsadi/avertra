@@ -458,14 +458,6 @@ To use these scripts effectively:
 - Monitor the development server console for request logs
 - Use tools like [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/) for GUI-based API testing
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## What to improve 🤔
 1. Add a caching system to not hit the db a lot
 2. More dynamic routing for create and update the blogs
