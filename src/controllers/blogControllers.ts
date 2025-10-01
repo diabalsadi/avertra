@@ -1,3 +1,4 @@
+import { isValidToken, verifyToken } from "@/services/jwtService";
 import prismaService from "@/services/prismaService";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -69,6 +70,74 @@ class BlogController {
     } catch (error: unknown) {
       res.status(500).json({
         error: "Error deleting blog",
+        details: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  async getArticle(req: NextApiRequest, res: NextApiResponse) {
+    const { id } = req.query;
+
+    if (!id) {
+      return res.status(400).json({ error: "Article ID is required" });
+    }
+
+    try {
+      const article = await prismaService.blog.findUnique({
+        where: {
+          id: id as string,
+        },
+      });
+
+      if (!article) {
+        return res.status(404).json({ error: "Article not found" });
+      }
+
+      res.json(article);
+    } catch (error: unknown) {
+      res.status(500).json({
+        error: "Error fetching article",
+        details: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  async updateBlog(req: NextApiRequest, res: NextApiResponse) {
+    // check for token in header for authentication
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const verified = await verifyToken(token);
+    const isValid = isValidToken(verified as { exp: number; iat: number; id: string });
+    if (!isValid) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { id } = req.query;
+    const { title, description, imgSrc } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: "Blog ID is required" });
+    }
+
+    try {
+      const updatedBlog = await prismaService.blog.update({
+        where: {
+          id: id as string,
+        },
+        data: {
+          title,
+          description,
+          imgSrc,
+        },
+      });
+
+      res.json(updatedBlog);
+    } catch (error: unknown) {
+      res.status(500).json({
+        error: "Error updating blog",
         details: error instanceof Error ? error.message : String(error),
       });
     }

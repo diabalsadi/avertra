@@ -44,7 +44,9 @@ const Article = ({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <Link href={`/blogs/${id}`}>
+          <CardTitle>{title}</CardTitle>
+        </Link>
         {description && (
           <CardDescription className="line-clamp-4 overflow-hidden text-ellipsis">
             {description}
@@ -72,7 +74,7 @@ const Article = ({
       </CardContent>
       {isEditable && (
         <CardFooter>
-          <Link href={`/blogs/edit/${id}`}>
+          <Link href={`/blogs/${id}`}>
             <Button variant="outline" size="sm">
               Edit Article
             </Button>
