@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     JWT_SECRET: process.env.JWT_SECRET,
   },
   reactStrictMode: true,
+  output: 'standalone', // Enable standalone output for Docker
 };
 
 export default nextConfig;

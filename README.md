@@ -17,6 +17,7 @@ A modern, full-stack blog application built with Next.js, TypeScript, and Postgr
 ### Tech Stack
 
 #### Frontend
+
 - **Next.js 15**: React framework with server-side rendering and API routes
 - **React 19**: Latest React with modern features
 - **TypeScript**: Type-safe JavaScript for better development experience
@@ -26,6 +27,7 @@ A modern, full-stack blog application built with Next.js, TypeScript, and Postgr
 - **Zod**: TypeScript-first schema validation
 
 #### Backend
+
 - **Next.js API Routes**: Server-side API endpoints
 - **Prisma**: Modern database toolkit and ORM
 - **PostgreSQL**: Robust relational database
@@ -34,6 +36,7 @@ A modern, full-stack blog application built with Next.js, TypeScript, and Postgr
 - **JWT**: JSON Web Tokens for session management
 
 #### Development & Testing
+
 - **Jest**: JavaScript testing framework
 - **React Testing Library**: Testing utilities for React components
 - **ESLint**: Code linting for consistent code quality
@@ -131,6 +134,7 @@ docker-compose up -d
 ```
 
 This will start a PostgreSQL container on port 5432 with the following credentials:
+
 - **Host**: localhost
 - **Port**: 5432
 - **Database**: avertra
@@ -255,6 +259,7 @@ For testing and development purposes, here are bash scripts using curl commands 
 ### User Management Scripts
 
 #### Register a New User
+
 ```bash
 #!/bin/bash
 # register_user.sh - Register a new user
@@ -270,6 +275,7 @@ curl -X POST http://localhost:3000/api/auth/register \
 ```
 
 #### Login User
+
 ```bash
 #!/bin/bash
 # login_user.sh - Login a user and get JWT token
@@ -283,6 +289,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 ```
 
 #### Get Current User Info
+
 ```bash
 #!/bin/bash
 # get_user.sh - Get current user information
@@ -298,6 +305,7 @@ curl -X GET http://localhost:3000/api/auth/getuser \
 ### Blog Management Scripts
 
 #### Create a New Blog Post
+
 ```bash
 #!/bin/bash
 # create_blog.sh - Create a new blog post
@@ -318,6 +326,7 @@ curl -X POST http://localhost:3000/api/blog/createBlog \
 ```
 
 #### Get All Blog Posts
+
 ```bash
 #!/bin/bash
 # get_all_blogs.sh - Retrieve all blog posts
@@ -327,6 +336,7 @@ curl -X GET "http://localhost:3000/api/blog/getAll?offset=0" \
 ```
 
 #### Get Specific Blog Post
+
 ```bash
 #!/bin/bash
 # get_blog.sh - Get a specific blog post by ID
@@ -339,6 +349,7 @@ curl -X GET "http://localhost:3000/api/blog/getArticle?id=$BLOG_ID" \
 ```
 
 #### Update Blog Post
+
 ```bash
 #!/bin/bash
 # update_blog.sh - Update an existing blog post
@@ -359,6 +370,7 @@ curl -X PATCH http://localhost:3000/api/blog/updateBlog \
 ```
 
 #### Delete Blog Post
+
 ```bash
 #!/bin/bash
 # delete_blog.sh - Delete a blog post
@@ -432,11 +444,13 @@ curl -s -X GET "http://localhost:3000/api/blog/getAll?offset=0" \
 To use these scripts effectively:
 
 1. **Make scripts executable**:
+
    ```bash
    chmod +x *.sh
    ```
 
 2. **Install jq for JSON parsing** (optional but recommended):
+
    ```bash
    # macOS
    brew install jq
@@ -458,6 +472,50 @@ To use these scripts effectively:
 - Monitor the development server console for request logs
 - Use tools like [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/) for GUI-based API testing
 
+### Authorization Testing
+
+To test the blog authorization security (ensuring users can only modify their own posts):
+
+```bash
+# Run the authorization test script
+./scripts/test-authorization.sh
+```
+
+This script will:
+
+1. Create two test users
+2. Have User 1 create a blog post
+3. Test that User 2 cannot update/delete User 1's blog (should fail with 403)
+4. Test that User 1 can update/delete their own blog (should succeed)
+
+## 🔒 Security Features
+
+### Blog Post Authorization
+
+The application implements proper authorization controls:
+
+- **Authentication Required**: All blog modification operations require a valid JWT token
+- **Ownership Verification**: Users can only update or delete their own blog posts
+- **403 Forbidden Response**: Attempting to modify another user's blog returns proper error
+- **Database-Level Checks**: Authorization is verified by comparing the authenticated user ID with the blog's userId field
+
+### Security Implementation
+
+```typescript
+// Example of authorization check in updateBlog
+const existingBlog = await prismaService.blog.findUnique({
+  where: { id: blogId },
+  select: { id: true, userId: true, title: true },
+});
+
+if (existingBlog.userId !== authenticatedUserId) {
+  return res.status(403).json({
+    error: "Forbidden: You can only update your own blog posts",
+  });
+}
+```
+
 ## What to improve 🤔
+
 1. Add a caching system to not hit the db a lot
 2. More dynamic routing for create and update the blogs
